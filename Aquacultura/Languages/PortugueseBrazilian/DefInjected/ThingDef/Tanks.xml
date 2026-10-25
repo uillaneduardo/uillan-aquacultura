@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <AQ_TankSmall.label>tanque de peixes pequeno</AQ_TankSmall.label>
+  <AQ_TankSmall.description>Tanque compacto para criação de peixes. Capacidade planejada: 8 peixes adultos equivalentes. Reprodução e colheita ainda não estão implementadas; nesta etapa, o tanque é decorativo.</AQ_TankSmall.description>
+  <AQ_TankMedium.label>tanque de peixes médio</AQ_TankMedium.label>
+  <AQ_TankMedium.description>Tanque intermediário para criação de peixes. Capacidade planejada: 24 peixes adultos equivalentes. Reprodução e colheita ainda não estão implementadas; nesta etapa, o tanque é decorativo.</AQ_TankMedium.description>
+  <AQ_TankLarge.label>tanque de peixes grande</AQ_TankLarge.label>
+  <AQ_TankLarge.description>Tanque para piscicultura em grande escala. Capacidade planejada: 60 peixes adultos equivalentes. Reprodução e colheita ainda não estão implementadas; nesta etapa, o tanque é decorativo.</AQ_TankLarge.description>
+</LanguageData>
