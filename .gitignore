@@ -6,6 +6,9 @@
 *.user
 *.suo
 *.log
-# DLLs e assemblies proprietarios do jogo nao devem ser commitados
 RimWorldManaged/
 GameAssemblies/
+# Binarios devem ser empacotados apenas após homologação
+Aquacultura/1.5/Assemblies/*.dll
+Aquacultura/1.6/Assemblies/*.dll
+Aquacultura/1.7/Assemblies/*.dll
