@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <ThingDef Name="AQ_TankBase" ParentName="BuildingBase" Abstract="True">
+    <category>Building</category>
+    <thingClass>Building</thingClass>
+    <graphicData><graphicClass>Graphic_Single</graphicClass><shaderType>Cutout</shaderType></graphicData>
+    <designationCategory>Production</designationCategory>
+    <terrainAffordanceNeeded>Heavy</terrainAffordanceNeeded>
+    <constructEffect>ConstructMetal</constructEffect>
+    <passability>Impassable</passability><fillPercent>0.8</fillPercent>
+    <rotatable>false</rotatable><useHitPoints>true</useHitPoints>
+    <statBases><Flammability>0</Flammability></statBases>
+  </ThingDef>
+  <ThingDef ParentName="AQ_TankBase">
+    <defName>AQ_TankSmall</defName><label>small fish tank</label>
+    <description>Compact tank for fish farming. Planned capacity: 8 adult-fish equivalents. Fish breeding and harvesting are not yet implemented: this building is currently decorative.</description>
+    <graphicData><texPath>Buildings/Tanks/TankSmall</texPath><drawSize>(2,2)</drawSize></graphicData>
+    <size>(2,2)</size><uiOrder>2410</uiOrder>
+    <costList><Steel>50</Steel></costList>
+    <statBases><MaxHitPoints>160</MaxHitPoints><WorkToBuild>450</WorkToBuild></statBases>
+  </ThingDef>
+  <ThingDef ParentName="AQ_TankBase">
+    <defName>AQ_TankMedium</defName><label>medium fish tank</label>
+    <description>Medium tank for fish farming. Planned capacity: 24 adult-fish equivalents. Fish breeding and harvesting are not yet implemented: this building is currently decorative.</description>
+    <graphicData><texPath>Buildings/Tanks/TankMedium</texPath><drawSize>(3,4)</drawSize></graphicData>
+    <size>(3,4)</size><uiOrder>2420</uiOrder>
+    <costList><Steel>130</Steel><ComponentIndustrial>1</ComponentIndustrial></costList>
+    <statBases><MaxHitPoints>300</MaxHitPoints><WorkToBuild>1300</WorkToBuild></statBases>
+  </ThingDef>
+  <ThingDef ParentName="AQ_TankBase">
+    <defName>AQ_TankLarge</defName><label>large fish tank</label>
+    <description>Large fish tank for industrial fish farming. Planned capacity: 60 adult-fish equivalents. Fish breeding and harvesting are not yet implemented: this building is currently decorative.</description>
+    <graphicData><texPath>Buildings/Tanks/TankLarge</texPath><drawSize>(5,5)</drawSize></graphicData>
+    <size>(5,5)</size><uiOrder>2430</uiOrder>
+    <costList><Steel>320</Steel><ComponentIndustrial>3</ComponentIndustrial></costList>
+    <statBases><MaxHitPoints>550</MaxHitPoints><WorkToBuild>3600</WorkToBuild></statBases>
+  </ThingDef>
+</Defs>
