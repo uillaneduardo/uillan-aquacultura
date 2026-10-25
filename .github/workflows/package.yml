@@ -14,6 +14,8 @@ jobs:
       - uses: actions/checkout@v4
       - name: Validate mod metadata and XML
         run: python3 scripts/package_mod.py --validate-only
+      - name: Validate tanks, textures and translations
+        run: python3 -m unittest discover -s tests -v
       - name: Package installation directory
         run: python3 scripts/package_mod.py --output dist/Uillan-Aquacultura.zip
       - name: Upload package for review
@@ -22,7 +24,6 @@ jobs:
           name: Uillan-Aquacultura
           path: dist/Uillan-Aquacultura.zip
           if-no-files-found: error
-
   prerelease:
     if: startsWith(github.ref, 'refs/tags/v') && contains(github.ref_name, '-rc.')
     needs: package
@@ -31,6 +32,10 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
+      - name: Validate before packaging
+        run: |
+          python3 scripts/package_mod.py --validate-only
+          python3 -m unittest discover -s tests -v
       - name: Package
         run: python3 scripts/package_mod.py --output dist/Uillan-Aquacultura.zip
       - name: Publish prerelease
