@@ -1,0 +1,11 @@
+# Artefatos locais de build e IDE
+**/bin/
+**/obj/
+.vs/
+.idea/
+*.user
+*.suo
+*.log
+# DLLs e assemblies proprietarios do jogo nao devem ser commitados
+RimWorldManaged/
+GameAssemblies/
