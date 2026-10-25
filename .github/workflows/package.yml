@@ -1,0 +1,44 @@
+name: Validate and package mod
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate mod metadata and XML
+        run: python3 scripts/package_mod.py --validate-only
+      - name: Package installation directory
+        run: python3 scripts/package_mod.py --output dist/Uillan-Aquacultura.zip
+      - name: Upload package for review
+        uses: actions/upload-artifact@v4
+        with:
+          name: Uillan-Aquacultura
+          path: dist/Uillan-Aquacultura.zip
+          if-no-files-found: error
+
+  prerelease:
+    if: startsWith(github.ref, 'refs/tags/v') && contains(github.ref_name, '-rc.')
+    needs: package
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Package
+        run: python3 scripts/package_mod.py --output dist/Uillan-Aquacultura.zip
+      - name: Publish prerelease
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${GITHUB_REF_NAME}" dist/Uillan-Aquacultura.zip \
+            --repo "${GITHUB_REPOSITORY}" \
+            --prerelease --verify-tag \
+            --title "Aquacultura ${GITHUB_REF_NAME}" \
+            --notes "Versão experimental. Consulte README.md e docs/TESTES.md. Compatibilidade com RimWorld 1.5/1.6/1.7 depende de testes no jogo."
