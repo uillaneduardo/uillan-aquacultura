@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework Condition="'$(RimWorldVersion)' != '1.7'">net472</TargetFramework>
+    <TargetFramework Condition="'$(RimWorldVersion)' == '1.7'">net10.0</TargetFramework>
+    <RimWorldVersion Condition="'$(RimWorldVersion)' == ''">1.6</RimWorldVersion>
+    <Nullable>disable</Nullable>
+    <LangVersion>7.3</LangVersion>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <EnableDefaultCompileItems>true</EnableDefaultCompileItems>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <GenerateDependencyFile>false</GenerateDependencyFile>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <OutputPath>../../Aquacultura/$(RimWorldVersion)/Assemblies/</OutputPath>
+  </PropertyGroup>
+  <Target Name="CheckGameReferences" BeforeTargets="ResolveReferences">
+    <Error Condition="'$(GameManagedDir)' == ''" Text="Passe -p:GameManagedDir=CAMINHO_DAS_DLLS_DO_RIMWORLD correspondente à versão." />
+    <Error Condition="!Exists('$(GameManagedDir)/Assembly-CSharp.dll')" Text="Assembly-CSharp.dll não encontrada em GameManagedDir." />
+    <Error Condition="'$(RimWorldVersion)' == '1.7' and !Exists('$(GameManagedDir)/UnityStubs.dll')" Text="UnityStubs.dll (RimWorld 1.7) não encontrada." />
+    <Error Condition="'$(RimWorldVersion)' == '1.7' and !Exists('$(GameManagedDir)/Waylith.dll')" Text="Waylith.dll (RimWorld 1.7) não encontrada." />
+  </Target>
+  <ItemGroup>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>$(GameManagedDir)/Assembly-CSharp.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule" Condition="'$(RimWorldVersion)' != '1.7' and Exists('$(GameManagedDir)/UnityEngine.CoreModule.dll')">
+      <HintPath>$(GameManagedDir)/UnityEngine.CoreModule.dll</HintPath><Private>false</Private>
+    </Reference>
+    <Reference Include="UnityStubs" Condition="'$(RimWorldVersion)' == '1.7'">
+      <HintPath>$(GameManagedDir)/UnityStubs.dll</HintPath><Private>false</Private>
+    </Reference>
+    <Reference Include="Waylith" Condition="'$(RimWorldVersion)' == '1.7'">
+      <HintPath>$(GameManagedDir)/Waylith.dll</HintPath><Private>false</Private>
+    </Reference>
+  </ItemGroup>
+</Project>

@@ -1,7 +1,8 @@
+using System;
 using Verse;
+
 namespace Uillan.Aquacultura
 {
-    // A cohort is data inside a tank, never a Pawn on the map.
     public sealed class TankCohort : IExposable
     {
         public string speciesDefName = "";
@@ -18,6 +19,19 @@ namespace Uillan.Aquacultura
             Scribe_Values.Look(ref eggs, "eggs", 0);
             Scribe_Values.Look(ref juveniles, "juveniles", 0);
             Scribe_Values.Look(ref averageGrowth, "averageGrowth", 0f);
+            if (Scribe.mode == LoadSaveMode.PostLoadInit) NormalizeAfterLoad();
+        }
+
+        public void NormalizeAfterLoad()
+        {
+            speciesDefName = speciesDefName ?? "";
+            males = Math.Max(0, males);
+            females = Math.Max(0, females);
+            eggs = Math.Max(0, eggs);
+            juveniles = Math.Max(0, juveniles);
+            if (float.IsNaN(averageGrowth) || float.IsInfinity(averageGrowth))
+                averageGrowth = 0f;
+            averageGrowth = Math.Max(0f, Math.Min(1f, averageGrowth));
         }
     }
 }
