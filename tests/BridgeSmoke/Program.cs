@@ -27,6 +27,18 @@ internal static class Program
     }
     static void Main()
     {
+        var noGizmos = NewTank();
+        Check(new System.Collections.Generic.List<Gizmo>(noGizmos.CompGetGizmosExtra()).Count == 0,
+            "Free resource actions exposed to normal players");
+        Prefs.DevMode = true;
+        var devGizmos = new System.Collections.Generic.List<Gizmo>(noGizmos.CompGetGizmosExtra());
+        Check(devGizmos.Count == 3, "Expected three developer-only actions");
+        ((Command_Action)devGizmos[0]).action();
+        ((Command_Action)devGizmos[1]).action();
+        ((Command_Action)devGizmos[2]).action();
+        Check(noGizmos.TotalEggs == 6 && noGizmos.FeedAvailable == 20f && noGizmos.DaysSimulated == 1,
+            "Developer tests did not affect tank state");
+        Prefs.DevMode = false;
         var initial = NewTank();
         Check(!initial.TryStockEggs("unknown", 1), "Accepted unknown fish");
         Check(!initial.TryStockEggs("tilapia", 81), "Exceeded egg capacity");

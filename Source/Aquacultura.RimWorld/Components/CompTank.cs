@@ -143,6 +143,30 @@ namespace Uillan.Aquacultura
             }
         }
 
+        public override IEnumerable<Gizmo> CompGetGizmosExtra()
+        {
+            foreach (var gizmo in base.CompGetGizmosExtra()) yield return gizmo;
+            if (!Prefs.DevMode) yield break;
+            yield return new Command_Action
+            {
+                defaultLabel = "DEV: add 6 tilapia roe",
+                defaultDesc = "Test-only stocking; creates no physical items.",
+                action = () => TryStockEggs("tilapia", 6)
+            };
+            yield return new Command_Action
+            {
+                defaultLabel = "DEV: add fish feed",
+                defaultDesc = "Test-only food supply, not linked to the colony inventory.",
+                action = () => AddFeed(20f)
+            };
+            yield return new Command_Action
+            {
+                defaultLabel = "DEV: simulate one day",
+                defaultDesc = "Test-only advance. The normal tick accumulator is not changed.",
+                action = () => SimulateDay()
+            };
+        }
+
         public override void PostExposeData()
         {
             base.PostExposeData();

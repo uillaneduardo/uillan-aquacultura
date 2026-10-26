@@ -9,10 +9,19 @@ namespace Verse
     public enum LookMode { Deep }
     public interface IExposable { void ExposeData(); }
     public class CompProperties { public Type compClass; }
+    public class Gizmo { }
+    public class Command_Action : Gizmo
+    {
+        public string defaultLabel;
+        public string defaultDesc;
+        public Action action;
+    }
+    public static class Prefs { public static bool DevMode; }
     public class ThingComp
     {
         public CompProperties props;
         public virtual void CompTickRare() { }
+        public virtual IEnumerable<Gizmo> CompGetGizmosExtra() { yield break; }
         public virtual void PostExposeData() { }
         public virtual string CompInspectStringExtra() { return null; }
     }
