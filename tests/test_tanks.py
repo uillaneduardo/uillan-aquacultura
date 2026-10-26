@@ -27,6 +27,7 @@ class TankDefinitions(unittest.TestCase):
         self.assertEqual(base.get("ParentName"), "BuildingBase")
         self.assertEqual(base.findtext("designationCategory"), "Production")
         self.assertEqual(base.findtext("thingClass"), "Building")
+        self.assertEqual(base.findtext("tickerType"), "Rare")
 
     def test_material_dimensions_and_graphics(self):
         for name,(size,cost) in EXPECTED.items():
