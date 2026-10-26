@@ -3,6 +3,7 @@
   <ThingDef Name="AQ_TankBase" ParentName="BuildingBase" Abstract="True">
     <category>Building</category>
     <thingClass>Building</thingClass>
+    <tickerType>Rare</tickerType>
     <graphicData><graphicClass>Graphic_Single</graphicClass><shaderType>Cutout</shaderType></graphicData>
     <designationCategory>Production</designationCategory>
     <terrainAffordanceNeeded>Heavy</terrainAffordanceNeeded>

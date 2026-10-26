@@ -17,3 +17,7 @@ Para 1.7 informe o **diretório real** contendo `Assembly-CSharp.dll`, `UnityStu
 Os artefatos deverão ficar em `Aquacultura/<versão>/Assemblies/`. **Não habilite o componente `CompTank` em defs genéricas antes que as três DLLs estejam construídas e testadas.** A integração está condicionada à verificação em jogo e será entregue por PR separado.
 
 Refs: https://rimworldwiki.com/wiki/Modding_Tutorials/RimWorld_1.7_Mod_Updates
+
+## Compilação local simplificada
+
+Use `python scripts/build_local.py --version 1.6 --managed "CAMINHO/DO/RIMWORLD/Managed"`. Consulte [guia de teste local](../../docs/TESTE_LOCAL.md). Nenhum arquivo binário do jogo será redistribuído. Os comandos DEV de prova de conceito aparecem somente após build e ativação com a biblioteca real.
