@@ -21,6 +21,8 @@ jobs:
           dotnet-version: '8.0.x'
       - name: Smoke tests of standalone fish simulation
         run: dotnet run --project tests/CoreSmoke/CoreSmoke.csproj --configuration Release
+      - name: Bridge tests against lightweight Verse doubles
+        run: dotnet run --project tests/BridgeSmoke/BridgeSmoke.csproj --configuration Release
       - name: Package installation directory
         run: python3 scripts/package_mod.py --output dist/Uillan-Aquacultura.zip
       - name: Upload package for review
@@ -37,12 +39,12 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
-      - name: Validate before packaging
+      - name: Block release if compiled runtimes are missing
         run: |
-          python3 scripts/package_mod.py --validate-only
+          python3 scripts/package_mod.py --validate-only --release-check
           python3 -m unittest discover -s tests -v
       - name: Package
-        run: python3 scripts/package_mod.py --output dist/Uillan-Aquacultura.zip
+        run: python3 scripts/package_mod.py --release-check --output dist/Uillan-Aquacultura.zip
       - name: Publish prerelease
         env:
           GH_TOKEN: ${{ github.token }}

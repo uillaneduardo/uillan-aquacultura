@@ -19,6 +19,9 @@
     <Error Condition="'$(RimWorldVersion)' == '1.7' and !Exists('$(GameManagedDir)/Waylith.dll')" Text="Waylith.dll (RimWorld 1.7) não encontrada." />
   </Target>
   <ItemGroup>
+    <Compile Include="../Aquacultura.Core/*.cs" Link="Core/%(Filename)%(Extension)" />
+  </ItemGroup>
+  <ItemGroup>
     <Reference Include="Assembly-CSharp">
       <HintPath>$(GameManagedDir)/Assembly-CSharp.dll</HintPath>
       <Private>false</Private>

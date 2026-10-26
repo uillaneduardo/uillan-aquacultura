@@ -11,6 +11,10 @@ namespace Uillan.Aquacultura.Core
             species = new Dictionary<string, FishSpecies>(StringComparer.Ordinal);
             foreach (var s in specs) species.Add(s.Id, s);
         }
+        public bool IsSupported(string speciesId)
+        {
+            return speciesId != null && species.ContainsKey(speciesId);
+        }
         public static IEnumerable<FishSpecies> Defaults()
         {
             yield return new FishSpecies("tilapia", false, 4, 16, .07f, 1.1f, .2f);
