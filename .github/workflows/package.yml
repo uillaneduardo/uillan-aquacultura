@@ -21,6 +21,8 @@ jobs:
           dotnet-version: '8.0.x'
       - name: Smoke tests of standalone fish simulation
         run: dotnet run --project tests/CoreSmoke/CoreSmoke.csproj --configuration Release
+      - name: Bridge tests against lightweight Verse doubles
+        run: dotnet run --project tests/BridgeSmoke/BridgeSmoke.csproj --configuration Release
       - name: Package installation directory
         run: python3 scripts/package_mod.py --output dist/Uillan-Aquacultura.zip
       - name: Upload package for review

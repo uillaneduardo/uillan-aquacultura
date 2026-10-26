@@ -4,7 +4,11 @@
 
 Mod para **RimWorld** que pretende oferecer tanques de criação de peixes, reprodução por casal, ovas, alimentação, predação, equipamentos de tratamento e carne de peixe.
 
-## Estado atual — M1-a
+## Estado atual — M2-b (em desenvolvimento)
+
+O núcleo de peixes já existe e seus estados são ligados, em **código-fonte**, a um ThingComp que registra dias simulados, ração, população, incubação e qualidade da água, inclusive após save/load. Há smoke tests do adaptador usando tipos Verse simulados, mas o assembly **ainda não foi compilado com as DLLs reais do jogo**. A pasta distribuível não pode ativar o componente até essa compilação e validação.
+
+## Estado inicial — M1-a
 
 Os três tanques estão definidos por XML, com arte PNG própria, tradução PT-BR e custos de construção: pequeno 2×2, médio 3×4, grande 5×5. Eles aparecem no menu **Arquiteto > Produção** conforme as definições, mas precisam ser testados dentro de cada versão do jogo. **Ainda são edifícios decorativos; não criam peixes nem geram alimento.**
 
