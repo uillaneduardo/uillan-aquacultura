@@ -39,12 +39,12 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
-      - name: Validate before packaging
+      - name: Block release if compiled runtimes are missing
         run: |
-          python3 scripts/package_mod.py --validate-only
+          python3 scripts/package_mod.py --validate-only --release-check
           python3 -m unittest discover -s tests -v
       - name: Package
-        run: python3 scripts/package_mod.py --output dist/Uillan-Aquacultura.zip
+        run: python3 scripts/package_mod.py --release-check --output dist/Uillan-Aquacultura.zip
       - name: Publish prerelease
         env:
           GH_TOKEN: ${{ github.token }}
