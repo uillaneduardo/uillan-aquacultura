@@ -14,6 +14,21 @@ internal static class Program
         Check(eggs > 0, "Same-species couple failed to produce eggs");
         Check(t.Cohorts[0].Eggs >= 0 && t.Cohorts[0].Fry >= 0, "Negative population");
         Check(t.WaterQuality > 0 && t.WaterQuality <= 1, "Water quality out of range");
+        // Mixed species must share one egg budget, including pre-existing roe.
+        var fullEggs = new FishTank { AdultEquivalentCapacity = 8, FeedAvailable = 100, TreatmentPowered = true };
+        fullEggs.Cohorts.Add(new FishCohort { SpeciesId = "tilapia", Eggs = 80, Males = 1, Females = 1 });
+        fullEggs.Cohorts.Add(new FishCohort { SpeciesId = "carp", Males = 2, Females = 2 });
+        var fullReport = sim.AdvanceDay(fullEggs, new Random(7));
+        Check(fullReport.EggsProduced == 0, "Mixed species spawned beyond tank-wide egg cap");
+        Check(fullEggs.Cohorts[0].Eggs + fullEggs.Cohorts[1].Eggs == 80,
+            "Tank-wide egg count changed despite full storage");
+        var nearlyFullEggs = new FishTank { AdultEquivalentCapacity = 8, FeedAvailable = 100, TreatmentPowered = true };
+        nearlyFullEggs.Cohorts.Add(new FishCohort { SpeciesId = "tilapia", Eggs = 79, Males = 1, Females = 1 });
+        nearlyFullEggs.Cohorts.Add(new FishCohort { SpeciesId = "carp", Males = 2, Females = 2 });
+        var partialReport = sim.AdvanceDay(nearlyFullEggs, new Random(7));
+        Check(partialReport.EggsProduced <= 1, "Mixed species exceeded remaining egg budget");
+        Check(nearlyFullEggs.Cohorts[0].Eggs + nearlyFullEggs.Cohorts[1].Eggs <= 80,
+            "Mixed species exceeded tank-wide egg cap");
         var alone = new FishTank { FeedAvailable = 100 };
         alone.Cohorts.Add(new FishCohort { SpeciesId = "carp", Males = 4 });
         for (int i = 0; i < 10; i++) sim.AdvanceDay(alone, new Random(i));
@@ -30,7 +45,7 @@ internal static class Program
         stable2.Cohorts.Add(new FishCohort { SpeciesId = "carp", Males = 1, Females = 1 });
         for (int i = 0; i < 20; i++) { sim.AdvanceDay(stable, new Random(i)); sim2.AdvanceDay(stable2, new Random(i)); }
         Check(stable.Cohorts[0].Eggs == stable2.Cohorts[0].Eggs, "Determinism failed");
-        Console.WriteLine("PASS: couples, single-sex, predation, water bounds, deterministic simulation");
+        Console.WriteLine("PASS: couples, tank-wide egg cap, single-sex, predation, water bounds, deterministic simulation");
         return 0;
     }
 }

@@ -51,6 +51,11 @@ namespace Uillan.Aquacultura.Core
             tank.FeedAvailable = Math.Max(0f, tank.FeedAvailable - consumed);
             float suitability = comfort * feedFactor;
             bool overcrowded = tank.UsedCapacity >= tank.AdultEquivalentCapacity;
+            // Egg storage belongs to the whole tank, not to each species.
+            // Keep the counter in sync as cohorts hatch and spawn during this day.
+            int totalEggs = 0;
+            foreach (var stocked in tank.Cohorts)
+                totalEggs += Math.Max(0, stocked.Eggs);
             foreach (var c in tank.Cohorts)
             {
                 FishSpecies s;
@@ -65,6 +70,7 @@ namespace Uillan.Aquacultura.Core
                         hatch = Math.Min(c.Eggs, Math.Max(0,
                             (int)Math.Floor((tank.AdultEquivalentCapacity - tank.UsedCapacity) * 10f)));
                         c.Eggs -= hatch;
+                        totalEggs -= hatch;
                         c.Fry += hatch;
                         report.EggsHatched += hatch;
                         c.EggProgress = 0f;
@@ -101,10 +107,11 @@ namespace Uillan.Aquacultura.Core
                     int pairs = Math.Min(c.Males, c.Females);
                     int spawn = (int)(pairs * s.EggsPerPair * suitability);
                     if (random.NextDouble() < (pairs * s.EggsPerPair * suitability - spawn)) spawn++;
-                    // Avoid runaway egg accumulation in a full tank.
+                    // All species share one tank-wide egg budget.
                     int eggLimit = tank.AdultEquivalentCapacity * 10;
-                    int added = Math.Min(Math.Max(0, eggLimit - c.Eggs), spawn);
+                    int added = Math.Min(Math.Max(0, eggLimit - totalEggs), spawn);
                     c.Eggs += added;
+                    totalEggs += added;
                     report.EggsProduced += added;
                 }
                 if (feedFactor < .2f || comfort < .2f)
