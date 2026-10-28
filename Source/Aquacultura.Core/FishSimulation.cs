@@ -119,8 +119,13 @@ namespace Uillan.Aquacultura.Core
                     float risk = Math.Min(.5f, (.2f - Math.Min(feedFactor, comfort)) * 1.5f);
                     int deadFry = NaturalDeath(c.Fry, risk, random);
                     int deadYoung = NaturalDeath(c.Juveniles, risk * .5f, random);
+                    // Adults are more resilient than fry, but cannot survive indefinitely
+                    // without food or in severely degraded water.
+                    int deadMales = NaturalDeath(c.Males, risk * .5f, random);
+                    int deadFemales = NaturalDeath(c.Females, risk * .5f, random);
                     c.Fry -= deadFry; c.Juveniles -= deadYoung;
-                    report.StarvationDeaths += deadFry + deadYoung;
+                    c.Males -= deadMales; c.Females -= deadFemales;
+                    report.StarvationDeaths += deadFry + deadYoung + deadMales + deadFemales;
                 }
             }
             // Predators consume vulnerable fish from other cohorts; avoid simultaneous mutation iteration.
