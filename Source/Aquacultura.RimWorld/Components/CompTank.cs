@@ -89,20 +89,24 @@ namespace Uillan.Aquacultura
             return true;
         }
 
-        // Returns number harvested, leaving reserve couples untouched. Future WorkGiver
-        // will spawn fish items only after successful harvest and the game job commits.
-        public int TryHarvestAdults(string speciesId, int requested)
+        // The caller must successfully deliver physical fish items before the population
+        // changes. No inventory-free harvest API is exposed to production jobs.
+        // deliverItems must return true only after it has committed the exact item count.
+        // This is a bridge contract, not yet a RimWorld WorkGiver/JobDriver.
+        public int TryHarvestAdults(string speciesId, int requested, Func<int, bool> deliverItems)
         {
-            if (requested <= 0) return 0;
+            if (requested <= 0 || deliverItems == null) return 0;
             var c = cohorts.Find(x => x.speciesDefName == speciesId);
             if (c == null) return 0;
             int males = Math.Max(0, c.males - breederPairsToKeep);
             int females = Math.Max(0, c.females - breederPairsToKeep);
             int takenMale = Math.Min(males, requested);
             int takenFemale = Math.Min(females, requested - takenMale);
+            int total = takenMale + takenFemale;
+            if (total == 0 || !deliverItems(total)) return 0;
             c.males -= takenMale;
             c.females -= takenFemale;
-            return takenMale + takenFemale;
+            return total;
         }
 
         private void SimulateDay()
