@@ -4,12 +4,12 @@ O `CompTank` recebe ticks raros (250 ticks), simula um dia após 60.000 ticks e 
 
 ## APIs internas
 
-- `TryStockEggs(speciesId, quantity)`: requer entrada válida, respeita monocultura e limite de ovas.
-- `AddFeed(quantity)`: adiciona suprimento lógico (a integração deverá consumir ração real).
+- `TryStockEggs(speciesId, quantity, consumeItems)`: valida espécie, monocultura e limite global **antes** de pedir consumo. O callback deve confirmar que exatamente `quantity` ovas físicas foram consumidas; falha/ausência não altera o tanque.
+- `TryAddFeed(units, consumeItems)`: aceita apenas unidades inteiras positivas, respeita o teto lógico de 100.000 e só aumenta o estoque após confirmação de consumo de exatamente `units` itens físicos. Por enquanto, **1 unidade física = 1 unidade lógica**; a definição de ração real e o balanceamento ainda estão pendentes.
 - `SetTreatmentPowered(bool)`: futuro equipamento elétrico controlará esta condição.
 - `TryHarvestAdults(speciesId, quantity, deliverItems)`: preserva casais reprodutores e **só remove os adultos após** `deliverItems(count)` confirmar a entrega de exatamente `count` itens físicos. Se a entrega falhar ou o callback não existir, o estoque biológico não muda. Ainda falta implementar `WorkGiver`/`JobDriver`, `ThingDef` e posicionamento real dos itens; o callback não deve ser utilizado para simular geração gratuita.
 
-Os métodos ainda não aparecem ao jogador. Os gizmos de adição gratuita são restritos a `Prefs.DevMode`. A confirmação do callback não substitui a transação real no mapa: o trabalho futuro deve lidar com falha de colocação, cancelamento do job e itens reservados, sem duplicação.
+Os métodos ainda não aparecem ao jogador. Os gizmos de adição gratuita são restritos a `Prefs.DevMode` e passam callbacks fictícios apenas para testes. Não existe mais método público de adicionar ração ou ovas sem callback. **O callback não é uma garantia de consumo real**: cabe ao futuro `JobDriver` reservar e consumir os itens, confirmar quantidades e tratar falha/cancelamento sem duplicação. A confirmação do callback não substitui a transação real no mapa.
 
 ## Teste
 
