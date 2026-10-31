@@ -39,12 +39,44 @@ internal static class Program
         Check(noGizmos.TotalEggs == 6 && noGizmos.FeedAvailable == 20f && noGizmos.DaysSimulated == 1,
             "Developer tests did not affect tank state");
         Prefs.DevMode = false;
+        // Physical input contracts: no logical state may change before inventory
+        // consumption is confirmed. Callbacks here are test doubles, not game jobs.
+        var inputs = NewTank();
+        int consumedRoe = 0;
+        Func<int, bool> roeConsumer = count => { consumedRoe += count; return true; };
+        Check(!inputs.TryStockEggs("tilapia", 6, null), "Stocked eggs without consumer");
+        Check(!inputs.TryStockEggs("unknown", 6, roeConsumer), "Accepted unknown species");
+        Check(!inputs.TryStockEggs("tilapia", 81, roeConsumer), "Consumed eggs above tank capacity");
+        Check(!inputs.TryStockEggs("tilapia", 6, _ => false), "Stocked eggs despite failed consumption");
+        Check(inputs.TotalEggs == 0 && consumedRoe == 0, "Invalid stocking mutated state or inventory");
+        Check(inputs.TryStockEggs("tilapia", 6, roeConsumer), "Valid consumed roe rejected");
+        Check(consumedRoe == 6 && inputs.TotalEggs == 6, "Stocking count diverged from consumed items");
+        Check(!inputs.TryStockEggs("carp", 1, roeConsumer), "Monoculture allowed extra species");
+        Check(!inputs.TryStockEggs("tilapia", 75, roeConsumer), "Accepted roe above remaining capacity");
+        Check(!inputs.TryStockEggs("tilapia", 1, _ => false), "Failed restock changed tank");
+        Check(consumedRoe == 6 && inputs.TotalEggs == 6, "Rejected restock consumed inventory");
+        int consumedFeed = 0;
+        Func<int, bool> feedConsumer = count => { consumedFeed += count; return true; };
+        Check(!inputs.TryAddFeed(1, null), "Added feed without consumer");
+        Check(!inputs.TryAddFeed(0, feedConsumer), "Accepted zero feed");
+        Check(!inputs.TryAddFeed(100001, feedConsumer), "Consumed feed above storage cap");
+        Check(!inputs.TryAddFeed(4, _ => false), "Added feed despite failed consumption");
+        Check(inputs.FeedAvailable == 0f && consumedFeed == 0, "Invalid feed changed state");
+        Check(inputs.TryAddFeed(10, feedConsumer), "Valid feed rejected");
+        Check(!inputs.TryAddFeed(99991, feedConsumer), "Consumed feed beyond remaining capacity");
+        Check(inputs.TryAddFeed(99990, feedConsumer), "Failed to fill feed storage exactly");
+        Check(!inputs.TryAddFeed(1, feedConsumer), "Overfilled feed storage");
+        Check(inputs.FeedAvailable == 100000f && consumedFeed == 100000,
+            "Feed units diverged from consumed items");
+        var loadedInputs = Reload(inputs);
+        Check(loadedInputs.TotalEggs == 6 && loadedInputs.FeedAvailable == 100000f,
+            "Committed physical inputs not preserved after save/load");
         var initial = NewTank();
-        Check(!initial.TryStockEggs("unknown", 1), "Accepted unknown fish");
-        Check(!initial.TryStockEggs("tilapia", 81), "Exceeded egg capacity");
-        Check(initial.TryStockEggs("tilapia", 6), "Unable to stock valid roe");
-        Check(!initial.TryStockEggs("carp", 5), "Monoculture constraint ignored");
-        initial.AddFeed(1000f);
+        Check(!initial.TryStockEggs("unknown", 1, _ => true), "Accepted unknown fish");
+        Check(!initial.TryStockEggs("tilapia", 81, _ => true), "Exceeded egg capacity");
+        Check(initial.TryStockEggs("tilapia", 6, _ => true), "Unable to stock valid roe");
+        Check(!initial.TryStockEggs("carp", 5, _ => true), "Monoculture constraint ignored");
+        Check(initial.TryAddFeed(1000, _ => true), "Unable to supply feed for simulation");
         Tick(initial, 59999 / 250 * 250);
         Check(initial.DaysSimulated == 0, "Advanced too soon");
         Tick(initial, 250);
@@ -71,7 +103,7 @@ internal static class Program
         // Simulate a mature cohort to exercise the output commit contract independently
         // of biological maturation time. No game DLL or real item is used in this test.
         var harvest = NewTank();
-        Check(harvest.TryStockEggs("tilapia", 1), "Unable to create harvest test cohort");
+        Check(harvest.TryStockEggs("tilapia", 1, _ => true), "Unable to create harvest test cohort");
         harvest.Cohorts[0].eggs = 0;
         harvest.Cohorts[0].males = 3;
         harvest.Cohorts[0].females = 4;
@@ -101,6 +133,6 @@ internal static class Program
         Check(savedHarvest.TotalFish == 2 && savedHarvest.Cohorts[0].males == 1
             && savedHarvest.Cohorts[0].females == 1,
             "Harvested population not persisted correctly");
-        Console.WriteLine("PASS: stock validation, monoculture, ticks, incubation, save/load, deterministic replay, transactional harvest");
+        Console.WriteLine("PASS: transactional roe/feed inputs, stock validation, monoculture, ticks, incubation, save/load, deterministic replay, transactional harvest");
     }
 }
