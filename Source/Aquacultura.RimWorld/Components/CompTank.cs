@@ -62,24 +62,33 @@ namespace Uillan.Aquacultura
             }
         }
 
-        public void AddFeed(float amount)
+        // Production jobs must commit the exact number of physical feed units before
+        // logical feed increases. One physical unit currently maps to one feed unit.
+        // This contract is not a substitute for a real inventory/JobDriver integration.
+        public bool TryAddFeed(int units, Func<int, bool> consumeItems)
         {
-            if (!float.IsNaN(amount) && !float.IsInfinity(amount) && amount > 0f)
-                feedAvailable = Math.Min(100000f, feedAvailable + amount);
+            if (units <= 0 || consumeItems == null || units > 100000f - feedAvailable)
+                return false;
+            if (!consumeItems(units)) return false;
+            feedAvailable += units;
+            return true;
         }
 
         public void SetTreatmentPowered(bool powered) { treatmentPowered = powered; }
 
-        // Safe API for future jobs that consume real roe items. No item creation here.
-        public bool TryStockEggs(string speciesId, int quantity)
+        // Validate species, tank policy and capacity BEFORE asking a job to consume
+        // physical roe. No eggs enter the tank unless consumption succeeds.
+        // consumeItems must return true only after consuming exactly quantity items.
+        public bool TryStockEggs(string speciesId, int quantity, Func<int, bool> consumeItems)
         {
-            if (quantity <= 0 || !Simulation.IsSupported(speciesId)) return false;
+            if (quantity <= 0 || consumeItems == null || !Simulation.IsSupported(speciesId))
+                return false;
             var existing = cohorts.Find(c => c.speciesDefName == speciesId);
             if (existing == null && !allowMixedSpecies && cohorts.Count > 0) return false;
             int currentEggs = 0;
             foreach (var c in cohorts) currentEggs += c.eggs;
             int room = Capacity * 10 - currentEggs;
-            if (quantity > room) return false;
+            if (quantity > room || !consumeItems(quantity)) return false;
             if (existing == null)
             {
                 existing = new TankCohort { speciesDefName = speciesId };
@@ -155,13 +164,13 @@ namespace Uillan.Aquacultura
             {
                 defaultLabel = "DEV: add 6 tilapia roe",
                 defaultDesc = "Test-only stocking; creates no physical items.",
-                action = () => TryStockEggs("tilapia", 6)
+                action = () => TryStockEggs("tilapia", 6, _ => true)
             };
             yield return new Command_Action
             {
                 defaultLabel = "DEV: add fish feed",
                 defaultDesc = "Test-only food supply, not linked to the colony inventory.",
-                action = () => AddFeed(20f)
+                action = () => TryAddFeed(20, _ => true)
             };
             yield return new Command_Action
             {
