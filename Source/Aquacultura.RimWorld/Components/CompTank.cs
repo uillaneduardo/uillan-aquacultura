@@ -116,17 +116,27 @@ namespace Uillan.Aquacultura
         // changes. No inventory-free harvest API is exposed to production jobs.
         // deliverItems must return true only after it has committed the exact item count.
         // This is a bridge contract, not yet a RimWorld WorkGiver/JobDriver.
+        // Safe job preflight: inspect harvestable adults without producing items.
+        // Recompute at commit time because other jobs or daily simulation may change stocks.
+        public int HarvestableAdults(string speciesId)
+        {
+            if (string.IsNullOrEmpty(speciesId)) return 0;
+            var c = cohorts.Find(x => x.speciesDefName == speciesId);
+            if (c == null) return 0;
+            return Math.Max(0, c.males - breederPairsToKeep)
+                 + Math.Max(0, c.females - breederPairsToKeep);
+        }
+
         public int TryHarvestAdults(string speciesId, int requested, Func<int, bool> deliverItems)
         {
             if (requested <= 0 || deliverItems == null) return 0;
+            int available = HarvestableAdults(speciesId);
+            if (available == 0) return 0;
             var c = cohorts.Find(x => x.speciesDefName == speciesId);
-            if (c == null) return 0;
-            int males = Math.Max(0, c.males - breederPairsToKeep);
-            int females = Math.Max(0, c.females - breederPairsToKeep);
-            int takenMale = Math.Min(males, requested);
-            int takenFemale = Math.Min(females, requested - takenMale);
-            int total = takenMale + takenFemale;
-            if (total == 0 || !deliverItems(total)) return 0;
+            int total = Math.Min(requested, available);
+            int takenMale = Math.Min(Math.Max(0, c.males - breederPairsToKeep), total);
+            int takenFemale = total - takenMale;
+            if (!deliverItems(total)) return 0;
             c.males -= takenMale;
             c.females -= takenFemale;
             return total;
