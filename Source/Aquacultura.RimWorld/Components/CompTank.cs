@@ -65,9 +65,14 @@ namespace Uillan.Aquacultura
         // Production jobs must commit the exact number of physical feed units before
         // logical feed increases. One physical unit currently maps to one feed unit.
         // This contract is not a substitute for a real inventory/JobDriver integration.
+        public bool CanAcceptFeed(int units)
+        {
+            return units > 0 && units <= 100000f - feedAvailable;
+        }
+
         public bool TryAddFeed(int units, Func<int, bool> consumeItems)
         {
-            if (units <= 0 || consumeItems == null || units > 100000f - feedAvailable)
+            if (consumeItems == null || !CanAcceptFeed(units))
                 return false;
             if (!consumeItems(units)) return false;
             feedAvailable += units;
@@ -79,16 +84,25 @@ namespace Uillan.Aquacultura
         // Validate species, tank policy and capacity BEFORE asking a job to consume
         // physical roe. No eggs enter the tank unless consumption succeeds.
         // consumeItems must return true only after consuming exactly quantity items.
-        public bool TryStockEggs(string speciesId, int quantity, Func<int, bool> consumeItems)
+        // Read-only preflight for future WorkGivers. Revalidate at commit time:
+        // inventory and tank state may change while a pawn is hauling.
+        public bool CanStockEggs(string speciesId, int quantity)
         {
-            if (quantity <= 0 || consumeItems == null || !Simulation.IsSupported(speciesId))
+            if (quantity <= 0 || !Simulation.IsSupported(speciesId))
                 return false;
             var existing = cohorts.Find(c => c.speciesDefName == speciesId);
             if (existing == null && !allowMixedSpecies && cohorts.Count > 0) return false;
             int currentEggs = 0;
             foreach (var c in cohorts) currentEggs += c.eggs;
             int room = Capacity * 10 - currentEggs;
-            if (quantity > room || !consumeItems(quantity)) return false;
+            return quantity <= room;
+        }
+
+        public bool TryStockEggs(string speciesId, int quantity, Func<int, bool> consumeItems)
+        {
+            if (consumeItems == null || !CanStockEggs(speciesId, quantity)) return false;
+            var existing = cohorts.Find(c => c.speciesDefName == speciesId);
+            if (!consumeItems(quantity)) return false;
             if (existing == null)
             {
                 existing = new TankCohort { speciesDefName = speciesId };
