@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <AQ_FishFeed.label>ração para peixes</AQ_FishFeed.label>
+  <AQ_FishFeed.description>Pellets preparados para tanques de peixes. O transporte e consumo por colonos ainda serão implementados; não abastece tanques automaticamente.</AQ_FishFeed.description>
+  <AQ_TilapiaRoe.label>ovas de tilápia</AQ_TilapiaRoe.label>
+  <AQ_TilapiaRoe.description>Ovas fertilizadas de tilápia para povoar tanques. O trabalho de transporte e consumo ainda será implementado.</AQ_TilapiaRoe.description>
+</LanguageData>
