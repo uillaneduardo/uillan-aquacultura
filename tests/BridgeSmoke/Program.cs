@@ -117,6 +117,9 @@ internal static class Program
         harvest.Cohorts[0].eggs = 0;
         harvest.Cohorts[0].males = 3;
         harvest.Cohorts[0].females = 4;
+        Check(harvest.HarvestableAdults("tilapia") == 5, "Harvest preflight did not preserve breeder pair");
+        Check(harvest.HarvestableAdults("carp") == 0 && harvest.HarvestableAdults(null) == 0,
+            "Harvest preflight accepted missing species");
         Check(harvest.TryHarvestAdults("tilapia", 4, null) == 0,
             "Harvest without physical output callback removed fish");
         Check(harvest.TryHarvestAdults("tilapia", 4, _ => false) == 0,
@@ -128,6 +131,7 @@ internal static class Program
             delivered += count;
             return true;
         }) == 4, "Committed harvest count incorrect");
+        Check(harvest.HarvestableAdults("tilapia") == 1, "Harvest preflight not updated after delivery");
         Check(delivered == 4 && harvest.TotalFish == 3,
             "Committed output and fish population diverged");
         Check(harvest.TryHarvestAdults("tilapia", 10, count =>
@@ -137,6 +141,7 @@ internal static class Program
         }) == 1, "Harvest did not preserve one breeder pair");
         Check(delivered == 5 && harvest.TotalFish == 2,
             "Reserve pair or physical output count incorrect");
+        Check(harvest.HarvestableAdults("tilapia") == 0, "Breeder pair incorrectly harvestable");
         Check(harvest.TryHarvestAdults("tilapia", 10, _ => true) == 0,
             "Reserve pair could be harvested again");
         var savedHarvest = Reload(harvest);
