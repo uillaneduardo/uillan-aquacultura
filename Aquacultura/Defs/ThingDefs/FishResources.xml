@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <!-- Physical inventory items only. WorkGiver/JobDriver and production recipes are pending. -->
+  <ThingDef ParentName="ResourceBase">
+    <defName>AQ_FishFeed</defName>
+    <label>fish feed</label>
+    <description>Prepared pellets for fish tanks. A future hauling job will consume one physical item for one feed unit; no automatic stocking is available yet.</description>
+    <graphicData>
+      <texPath>Fish/FishFeed</texPath>
+      <graphicClass>Graphic_StackCount</graphicClass>
+    </graphicData>
+    <statBases>
+      <MarketValue>0.7</MarketValue>
+      <Mass>0.05</Mass>
+      <Flammability>1</Flammability>
+    </statBases>
+    <stackLimit>75</stackLimit>
+    <thingCategories><li>Manufactured</li></thingCategories>
+  </ThingDef>
+  <ThingDef ParentName="ResourceBase">
+    <defName>AQ_TilapiaRoe</defName>
+    <label>tilapia roe</label>
+    <description>Fertilized tilapia eggs for stocking a fish tank. A future hauling job will consume the items before updating the tank population.</description>
+    <graphicData>
+      <texPath>Fish/TilapiaRoe</texPath>
+      <graphicClass>Graphic_StackCount</graphicClass>
+    </graphicData>
+    <statBases>
+      <MarketValue>1.5</MarketValue>
+      <Mass>0.02</Mass>
+      <Flammability>1</Flammability>
+    </statBases>
+    <stackLimit>75</stackLimit>
+    <thingCategories><li>Manufactured</li></thingCategories>
+  </ThingDef>
+</Defs>
