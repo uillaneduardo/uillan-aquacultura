@@ -239,7 +239,7 @@ namespace Uillan.Aquacultura
 
         public override string CompInspectStringExtra()
         {
-            return "Aquacultura: " + TotalFish + "/" + Capacity + " fish (adult-equivalent capacity)"
+            return "Aquacultura: " + TotalFish + " fish (tank capacity: " + Capacity + " adult equivalents)"
                 + "\nWater quality: " + (int)(waterQuality * 100f) + "%"
                 + "\nEggs: " + TotalEggs
                 + "\nFeed: " + feedAvailable.ToString("0.0")
