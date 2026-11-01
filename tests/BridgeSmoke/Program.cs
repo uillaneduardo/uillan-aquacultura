@@ -28,6 +28,9 @@ internal static class Program
     static void Main()
     {
         var noGizmos = NewTank();
+        string inspection = noGizmos.CompInspectStringExtra();
+        Check(inspection.Contains("0 fish") && inspection.Contains("capacity: 8 adult equivalents"),
+            "Inspection must distinguish individual count from adult-equivalent capacity");
         Check(new System.Collections.Generic.List<Gizmo>(noGizmos.CompGetGizmosExtra()).Count == 0,
             "Free resource actions exposed to normal players");
         Prefs.DevMode = true;
