@@ -39,3 +39,12 @@ Suporte almejado: 1.5, 1.6 e 1.7. Testes in-game e com saves anteriores estão p
 `Aquacultura/`: mod instalável. `Source/`: C# a compilar com DLLs próprias do jogo. `docs/`: projeto e testes. `tests/`: validações. `scripts/`: empacotamento.
 
 A licença de distribuição e os créditos das artes serão definidos antes do primeiro release público; não enviar conteúdo proprietário do RimWorld.
+### Compilar e instalar localmente no Windows (RimWorld 1.6)
+
+Requer PowerShell, Python 3, .NET SDK e .NET Framework 4.7.2 Developer Pack. Com o jogo fechado, na raiz do repositório:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/build_install_windows.ps1 -GameDir "C:\Program Files (x86)\Steam\steamapps\common\RimWorld"
+```
+
+Ajuste `-GameDir` para a pasta real do jogo. O script usa somente as DLLs locais do RimWorld, executa BridgeSmoke, compila a assembly 1.6, ativa o patch condicional e instala em `RimWorld/Mods/Aquacultura`. Em caso de compilação ou teste falho, interrompe antes de substituir o mod. A instalação anterior é renomeada como backup. **Não publica DLLs do jogo, não testa a engine real automaticamente e não constitui release jogável.** Use save de teste e verifique o log do jogo.
