@@ -42,6 +42,12 @@ internal static class Program
         // Physical input contracts: no logical state may change before inventory
         // consumption is confirmed. Callbacks here are test doubles, not game jobs.
         var inputs = NewTank();
+        Check(inputs.CanStockEggs("tilapia", 80), "Preflight rejected valid full egg capacity");
+        Check(!inputs.CanStockEggs("tilapia", 81), "Preflight accepted egg overflow");
+        Check(!inputs.CanStockEggs("unknown", 1), "Preflight accepted unknown species");
+        Check(!inputs.CanStockEggs("tilapia", 0), "Preflight accepted zero eggs");
+        Check(inputs.CanAcceptFeed(100000), "Preflight rejected feed capacity");
+        Check(!inputs.CanAcceptFeed(100001) && !inputs.CanAcceptFeed(0), "Feed preflight accepted invalid units");
         int consumedRoe = 0;
         Func<int, bool> roeConsumer = count => { consumedRoe += count; return true; };
         Check(!inputs.TryStockEggs("tilapia", 6, null), "Stocked eggs without consumer");
@@ -51,6 +57,9 @@ internal static class Program
         Check(inputs.TotalEggs == 0 && consumedRoe == 0, "Invalid stocking mutated state or inventory");
         Check(inputs.TryStockEggs("tilapia", 6, roeConsumer), "Valid consumed roe rejected");
         Check(consumedRoe == 6 && inputs.TotalEggs == 6, "Stocking count diverged from consumed items");
+        Check(inputs.CanStockEggs("tilapia", 74) && !inputs.CanStockEggs("tilapia", 75),
+            "Preflight did not account for occupied egg capacity");
+        Check(!inputs.CanStockEggs("carp", 1), "Preflight ignored monoculture policy");
         Check(!inputs.TryStockEggs("carp", 1, roeConsumer), "Monoculture allowed extra species");
         Check(!inputs.TryStockEggs("tilapia", 75, roeConsumer), "Accepted roe above remaining capacity");
         Check(!inputs.TryStockEggs("tilapia", 1, _ => false), "Failed restock changed tank");
@@ -66,6 +75,7 @@ internal static class Program
         Check(!inputs.TryAddFeed(99991, feedConsumer), "Consumed feed beyond remaining capacity");
         Check(inputs.TryAddFeed(99990, feedConsumer), "Failed to fill feed storage exactly");
         Check(!inputs.TryAddFeed(1, feedConsumer), "Overfilled feed storage");
+        Check(!inputs.CanAcceptFeed(1), "Feed preflight ignored full storage");
         Check(inputs.FeedAvailable == 100000f && consumedFeed == 100000,
             "Feed units diverged from consumed items");
         var loadedInputs = Reload(inputs);
