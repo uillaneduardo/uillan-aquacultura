@@ -31,6 +31,7 @@ internal static class Program
         string inspection = noGizmos.CompInspectStringExtra();
         Check(inspection.Contains("0 fish") && inspection.Contains("capacity: 8 adult equivalents"),
             "Inspection must distinguish individual count from adult-equivalent capacity");
+        Check(inspection.Contains("Species: none"), "Empty tank inspection must show no species");
         Check(new System.Collections.Generic.List<Gizmo>(noGizmos.CompGetGizmosExtra()).Count == 0,
             "Free resource actions exposed to normal players");
         Prefs.DevMode = true;
@@ -60,6 +61,8 @@ internal static class Program
         Check(inputs.TotalEggs == 0 && consumedRoe == 0, "Invalid stocking mutated state or inventory");
         Check(inputs.TryStockEggs("tilapia", 6, roeConsumer), "Valid consumed roe rejected");
         Check(consumedRoe == 6 && inputs.TotalEggs == 6, "Stocking count diverged from consumed items");
+        Check(inputs.CompInspectStringExtra().Contains("tilapia: eggs 6, fry 0, juveniles 0, adults 0 (0M/0F)"),
+            "Stocked roe missing from per-species inspection");
         Check(inputs.CanStockEggs("tilapia", 74) && !inputs.CanStockEggs("tilapia", 75),
             "Preflight did not account for occupied egg capacity");
         Check(!inputs.CanStockEggs("carp", 1), "Preflight ignored monoculture policy");
@@ -120,6 +123,9 @@ internal static class Program
         harvest.Cohorts[0].eggs = 0;
         harvest.Cohorts[0].males = 3;
         harvest.Cohorts[0].females = 4;
+        Check(harvest.CompInspectStringExtra().Contains("tilapia: eggs 0, fry 0, juveniles 0, adults 7 (3M/4F)"),
+            "Inspection must show adult sex counts without mutating the cohort");
+        Check(harvest.TotalFish == 7, "Inspection unexpectedly mutated population");
         Check(harvest.HarvestableAdults("tilapia") == 5, "Harvest preflight did not preserve breeder pair");
         Check(harvest.HarvestableAdults("carp") == 0 && harvest.HarvestableAdults(null) == 0,
             "Harvest preflight accepted missing species");
@@ -151,6 +157,8 @@ internal static class Program
         Check(savedHarvest.TotalFish == 2 && savedHarvest.Cohorts[0].males == 1
             && savedHarvest.Cohorts[0].females == 1,
             "Harvested population not persisted correctly");
+        Check(savedHarvest.CompInspectStringExtra().Contains("tilapia: eggs 0, fry 0, juveniles 0, adults 2 (1M/1F)"),
+            "Per-species inspection diverged after save/load");
         Console.WriteLine("PASS: transactional roe/feed inputs, stock validation, monoculture, ticks, incubation, save/load, deterministic replay, transactional harvest");
     }
 }
