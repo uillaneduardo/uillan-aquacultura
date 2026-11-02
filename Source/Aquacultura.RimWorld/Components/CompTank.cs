@@ -239,11 +239,27 @@ namespace Uillan.Aquacultura
 
         public override string CompInspectStringExtra()
         {
-            return "Aquacultura: " + TotalFish + " fish (tank capacity: " + Capacity + " adult equivalents)"
+            string summary = "Aquacultura: " + TotalFish + " fish (tank capacity: " + Capacity + " adult equivalents)"
                 + "\nWater quality: " + (int)(waterQuality * 100f) + "%"
                 + "\nEggs: " + TotalEggs
                 + "\nFeed: " + feedAvailable.ToString("0.0")
                 + "\nDays simulated: " + daysSimulated;
+
+            // Keep inspection read-only: it must not advance simulation or mutate cohorts.
+            // Species IDs are used until localization and the dedicated management window exist.
+            if (cohorts == null || cohorts.Count == 0) return summary + "\nSpecies: none";
+            foreach (var cohort in cohorts)
+            {
+                if (cohort == null) continue;
+                string species = string.IsNullOrEmpty(cohort.speciesDefName)
+                    ? "unknown" : cohort.speciesDefName;
+                summary += "\n" + species + ": eggs " + cohort.eggs
+                    + ", fry " + cohort.fry
+                    + ", juveniles " + cohort.juveniles
+                    + ", adults " + (cohort.males + cohort.females)
+                    + " (" + cohort.males + "M/" + cohort.females + "F)";
+            }
+            return summary;
         }
 
         public int TotalEggs
